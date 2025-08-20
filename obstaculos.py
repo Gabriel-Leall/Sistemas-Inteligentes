@@ -1,27 +1,27 @@
 import matplotlib.pyplot as plt
-from matplotlib.patches import circulo
+from matplotlib.patches import Circle as circulo
 import random
-import math
 
 
-def generate_obstacles(num_obstacles, area_size, min_radius, max_radius, start_pos, end_pos, margin):
+
+def gerar_obj(num_obstacles, area_size, min_raio, max_raio, start_pos, end_pos, margin): 
   obstacles = []
 
   while len(obstacles) < num_obstacles:
-    radius = random.randint(min_radius, max_radius)
-    x = random.randint(radius, area_size[0] - radius)
-    y = random.randint(radius, area_size[1] - radius)
-    new_obstacle = (x, y, radius)
+    raio = random.randint(min_raio, max_raio)
+    x = random.randint(raio, area_size[0] - raio)
+    y = random.randint(raio, area_size[1] - raio)
+    novo_obj = (x, y, raio)
 
-    if is_point_in_circulo(start_pos, new_obstacle) or is_point_in_circulo(end_pos, new_obstacle):
+    if ponto_no_circulo(start_pos, novo_obj) or ponto_no_circulo(end_pos, novo_obj):
         continue
     
-    if not any(circulos_intersect(new_obstacle, o, margin) for o in obstacles):
-      obstacles.append(new_obstacle)
+    if not any(circulos_intersect(novo_obj, x, margin) for x in obstacles):
+      obstacles.append(novo_obj)
 
   return obstacles
 
-def circulos_intersect(circulo1, circulo2, margin=0):
+def circulos_intersect(circulo1, circulo2, margin=0): # se os circulos estão se chocando
   x1, y1, r1 = circulo1
   x2, y2, r2 = circulo2
 
@@ -31,24 +31,24 @@ def circulos_intersect(circulo1, circulo2, margin=0):
   
   return distancia_quad <= raio_quadrado
 
-def is_point_in_circulo(point, circulo):
+def ponto_no_circulo(point, circulo): # Verifica se o ponto inicial/final está dentro de um círculo
   point_x, point_y = point
-  circulo_x, circulo_y, radius = circulo
+  circulo_x, circulo_y, raio = circulo
   
   distancia_quad = (point_x - circulo_x)**2 + (point_y - circulo_y)**2
   
-  return distancia_quad <= radius**2
+  return distancia_quad <= raio**2
 
-def get_strategic_points(obstacles, start, end):
+def plotar_ponto(obstacles, start, end):
   points = {start, end}
   for (x, y, r) in obstacles: # eixo x, eixo y, r raio
-      points.add((x + r, y))
-      points.add((x - r, y))
+      points.add((x + r, y)) 
+      points.add((x - r, y)) 
       points.add((x, y + r))
       points.add((x, y - r))
   return list(points) 
 
-def visualizar_mapa(obstacles, points, start_pos, end_pos, area_size):
+def visualizar_mapa(obstacles, points, start_pos, end_pos, area_size): 
     fig, ax = plt.subplots(figsize=(10, 10))
     ax.set_xlim(0, area_size[0])
     ax.set_ylim(0, area_size[1])
@@ -61,7 +61,7 @@ def visualizar_mapa(obstacles, points, start_pos, end_pos, area_size):
     ax.scatter(start_pos[0], start_pos[1], color='black', s=50, zorder=2, label='Início')
     ax.scatter(end_pos[0], end_pos[1], color='red', s=50, zorder=2, label='Fim')
 
-    plt.title("Mapa de Obstáculos Circulares")
+    plt.title("Mapa de Obstáculos")
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.6)
     ax.set_aspect('equal', adjustable='box')
@@ -69,16 +69,16 @@ def visualizar_mapa(obstacles, points, start_pos, end_pos, area_size):
 
 if __name__ == '__main__':
     AREA_SIZE = (1000, 1000)
-    MIN_RADIUS = 25
-    MAX_RADIUS = 70
+    MIN_raio = 25
+    MAX_raio = 90
     NUM_OBSTACLES = random.randint(20, 40)
     MIN_MARGIN = 15
     START_POS = (50, 50)  
     END_POS = (950, 950)
 
-    obstacles = generate_obstacles(NUM_OBSTACLES, AREA_SIZE, MIN_RADIUS, MAX_RADIUS, START_POS, END_POS, MIN_MARGIN)
-    strategic_points = get_strategic_points(obstacles, START_POS, END_POS)
+    obstacles = gerar_obj(NUM_OBSTACLES, AREA_SIZE, MIN_raio, MAX_raio, START_POS, END_POS, MIN_MARGIN)
+    plotar_pontos = plotar_ponto(obstacles, START_POS, END_POS)
 
-    print(f"Gerados {len(obstacles)} obstáculos circulares e {len(strategic_points)} pontos estratégicos.")
+    print(f"Gerados {len(obstacles)} circulos e {len(plotar_pontos)} pontos.")
     
-    visualizar_mapa(obstacles, strategic_points, START_POS, END_POS, AREA_SIZE)
+    visualizar_mapa(obstacles, plotar_pontos, START_POS, END_POS, AREA_SIZE)
